@@ -185,8 +185,6 @@ func (f *FatBotBrain) startListening() chan bool {
 							cleanText = cleaner.Clean(cleanText)
 						}
 
-						f.FeedString(cleanText)
-
 						var reacted bool
 						for _, reactor := range f.reactors {
 							if reacted = reactor.React(update.Message.Chat.ID, cleanText); reacted {
@@ -194,8 +192,10 @@ func (f *FatBotBrain) startListening() chan bool {
 								break
 							}
 						}
+
 						if !reacted {
 							msgsToSave = append(msgsToSave, update)
+							f.FeedString(cleanText)
 						}
 					} else {
 						continue
