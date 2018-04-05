@@ -46,7 +46,7 @@ func main() {
 		urlcleaner.New(),
 	}
 
-	brain, err := fatbrain.New(2, 8, os.Getenv("FATBOT_TELEGRAM_TOKEN"), 30, db,
+	brain, err := fatbrain.New(2, 8, os.Getenv("FATBOT_TELEGRAM_TOKEN"), 2, db,
 		chats, cleaners)
 	if err != nil {
 		logrus.WithError(err).Fatal("Failed creating bot")
