@@ -16,3 +16,5 @@ services:
       - 3306
     env_file:
       - fatbot.env
+    volumes:
+      - data-db:/var/lib/mysql
