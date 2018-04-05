@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"strconv"
 
 	"math/rand"
 	"time"
@@ -15,7 +16,10 @@ import (
 	"github.com/wallnutkraken/fatbot/fatplugin/urlcleaner"
 )
 
-const connStr = "fatbot:fatbot@tcp(tgbot_mysql_1:3306)/fatbot"
+const (
+	connStr = "fatbot:fatbot@tcp(tgbot_mysql_1:3306)/fatbot"
+	defaultChainLength = 1
+)
 
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -46,7 +50,7 @@ func main() {
 		urlcleaner.New(),
 	}
 
-	brain, err := fatbrain.New(2, 8, os.Getenv("FATBOT_TELEGRAM_TOKEN"), 2, db,
+	brain, err := fatbrain.New(getChainLength(), 8, os.Getenv("FATBOT_TELEGRAM_TOKEN"), 2, db,
 		chats, cleaners)
 	if err != nil {
 		logrus.WithError(err).Fatal("Failed creating bot")
@@ -65,4 +69,18 @@ func main() {
 	//TODO
 	time.Sleep(time.Hour * 90000)
 	brain.Stop()
+}
+
+func getChainLength() int {
+	chLen := os.Getenv("FATBOT_CHAIN_LENGTH")
+	if chLen == "" {
+		return defaultChainLength
+	}
+	chLenInt, err := strconv.Atoi(chLen)
+	if err != nil {
+		logrus.Errorf("Invalid chain length value [%s]", chLen)
+		return defaultChainLength
+	}
+
+	return chLenInt
 }
