@@ -94,6 +94,7 @@ func (f *FatBotBrain) FeedString(text string) {
 
 func (f *FatBotBrain) generate() string {
 	text := f.chain.Generate()
+	logrus.Infof("Generated message [%s] with [%d] newlines", text, strings.Count(text, "\n"))
 	return strings.Split(text, "\n")[0]
 }
 
@@ -151,9 +152,11 @@ func (f *FatBotBrain) startMessaging() chan bool {
 }
 
 func (f *FatBotBrain) SendMessage(chatID int) error {
+	msgText := f.generate()
+	logrus.Infof("Sending message to [%d]: [%s]", chatID, msgText)
 	_, err := f.telegram.SendMessage(TeleGogo.SendMessageArgs{
 		ChatID: strconv.Itoa(chatID),
-		Text:   f.generate(),
+		Text:   msgText,
 	})
 
 	return err
