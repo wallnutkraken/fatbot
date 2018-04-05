@@ -26,6 +26,7 @@ const (
 	MinChainLength              = 1
 	MaxChainLength              = 3
 	MinMessageCountForMessaging = 100
+	MaxWordCount = 12
 )
 
 var ErrInvalidLength = errors.New(fmt.Sprintf("The chain length MUST be between %d and %d.",
@@ -95,7 +96,15 @@ func (f *FatBotBrain) FeedString(text string) {
 func (f *FatBotBrain) generate() string {
 	text := f.chain.Generate()
 	logrus.Infof("Generated message [%s] with [%d] newlines", text, strings.Count(text, "\n"))
-	return strings.Split(text, "\n")[0]
+	firstLine := strings.Split(text, "\n")[0]
+
+	// Split into words
+	words := strings.Split(firstLine, " ")
+	if len(words) > MaxWordCount {
+		return strings.Join(words[:MaxWordCount], "")
+	} else {
+		return firstLine
+	}
 }
 
 func (f *FatBotBrain) AddChat(chatID int) error {
