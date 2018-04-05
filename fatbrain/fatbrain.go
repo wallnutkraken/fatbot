@@ -3,6 +3,7 @@ package fatbrain
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"io"
 
@@ -92,7 +93,8 @@ func (f *FatBotBrain) FeedString(text string) {
 }
 
 func (f *FatBotBrain) generate() string {
-	return f.chain.Generate()
+	text := f.chain.Generate()
+	return strings.Split(text, "\n")[0]
 }
 
 func (f *FatBotBrain) AddChat(chatID int) error {
@@ -171,6 +173,7 @@ func (f *FatBotBrain) startListening() chan bool {
 					continue
 				}
 
+				msgsToSave := make([]TeleGogo.Update, 0)
 				for _, update := range updates {
 					if update.Message.Text != "" {
 						logrus.Infof("Got message [%s]", update.Message.Text)
@@ -187,13 +190,14 @@ func (f *FatBotBrain) startListening() chan bool {
 								continue
 							}
 						}
+						msgsToSave = append(msgsToSave, update)
 					} else {
 						continue
 					}
 				}
 				if len(updates) > 0 {
 					f.lastID = updates[len(updates)-1].ID
-					go f.saveMesages(updates)
+					go f.saveMesages(msgsToSave)
 				}
 			}
 		}
