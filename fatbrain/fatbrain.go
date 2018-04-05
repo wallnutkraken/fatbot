@@ -192,7 +192,7 @@ func (f *FatBotBrain) startListening() chan bool {
 					}
 				}
 				if len(updates) > 0 {
-					f.lastID = updates[len(updates)-1].Message.ID
+					f.lastID = updates[len(updates)-1].ID
 					go f.saveMesages(updates)
 				}
 			}
