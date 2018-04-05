@@ -101,7 +101,7 @@ func (f *FatBotBrain) generate() string {
 	// Split into words
 	words := strings.Split(firstLine, " ")
 	if len(words) > MaxWordCount {
-		return strings.Join(words[:MaxWordCount], "")
+		return strings.Join(words[:MaxWordCount], " ")
 	} else {
 		return firstLine
 	}
