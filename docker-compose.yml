@@ -1,0 +1,18 @@
+version: '3'
+services:
+  fatbot:
+    build: .
+    restart: always
+    env_file:
+      - fatbot.env
+    environment:
+      - FATBOT_TELEGRAM_TOKEN
+    depends_on:
+      - mysql
+  mysql:
+    image: mysql:latest
+    restart: always
+    expose:
+      - 3306
+    env_file:
+      - fatbot.env
