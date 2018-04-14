@@ -9,15 +9,107 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/exercism/arkov"
-  packages = ["chain"]
-  revision = "c8fda3c77620609973f95b7cf63c170dbb877fdb"
-
-[[projects]]
-  branch = "master"
   name = "github.com/go-sql-driver/mysql"
   packages = ["."]
   revision = "3287d94d4c6a48a63e16fffaabf27ab20203af2a"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/gonum/blas"
+  packages = [
+    ".",
+    "blas32",
+    "blas64",
+    "native",
+    "native/internal/math32"
+  ]
+  revision = "e7c5890b24cf6f3bb173f76e1bd71e80e887e3f9"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/gonum/internal"
+  packages = [
+    "asm/f32",
+    "asm/f64"
+  ]
+  revision = "fda53f8d25717c07e2dac25758075a182bd74235"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/unixpickle/anydiff"
+  packages = [
+    ".",
+    "anyfwd",
+    "anyseq"
+  ]
+  revision = "55bea27bf48b56e9b4d688898283241eaa1a3011"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/unixpickle/anynet"
+  packages = [
+    ".",
+    "anyrnn",
+    "anys2s",
+    "anysgd"
+  ]
+  revision = "016782221a5a9a1928873ae3a6902c105eb41fa1"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/unixpickle/anyvec"
+  packages = [
+    ".",
+    "anyvec32",
+    "anyvec64",
+    "anyvecsave"
+  ]
+  revision = "59aa66ba0472c3778dae801bb02ee517d8cdafc2"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/unixpickle/convmarkup"
+  packages = ["."]
+  revision = "b64776b481fba5ec56ab6a020490f54dc25d9ab3"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/unixpickle/essentials"
+  packages = ["."]
+  revision = "bca13a0bdff4dad7a95b21dfc787904894324e57"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/unixpickle/hmm"
+  packages = ["."]
+  revision = "d367538e5b1d76b84fc84166ca5de4cc4ab458cf"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/unixpickle/lazyseq"
+  packages = [
+    ".",
+    "lazyrnn"
+  ]
+  revision = "dacb3642d9be3562755660df85b2789b0fb11e4e"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/unixpickle/rip"
+  packages = ["."]
+  revision = "d6200de264b4506ce04a82f65374f4a697740448"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/unixpickle/serializer"
+  packages = ["."]
+  revision = "c6c092dc55bbf7b6774f89d77ea06dd2605420e3"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/wallnutkraken/char-rnn"
+  packages = ["."]
+  revision = "27b10a53c067ecee42ab23f3ad4b2ed8467a6d72"
 
 [[projects]]
   branch = "master"
@@ -55,6 +147,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c68565fe21dafc211f40d675c96437211e9e28c1ddb2733f9b75e341ae801bb3"
+  inputs-digest = "aa16b9c1e0e9b120e488df06d256de9f698282a4447c807ee2f6f9d91e2d546d"
   solver-name = "gps-cdcl"
   solver-version = 1

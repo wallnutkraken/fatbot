@@ -11,6 +11,8 @@ services:
     environment:
       - GOMAXPROCS=$(grep -c ^processor /proc/cpuinfo)
       - FATBOT_TELEGRAM_TOKEN
+      - FATBOT_SAVE_PATH
+      - FATBOT_WORD_COUNT
     depends_on:
       - mysql
   mysql:
