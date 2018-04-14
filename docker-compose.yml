@@ -9,6 +9,7 @@ services:
     env_file:
       - fatbot.env
     environment:
+      - GOMAXPROCS=$(grep -c ^processor /proc/cpuinfo)
       - FATBOT_TELEGRAM_TOKEN
     depends_on:
       - mysql

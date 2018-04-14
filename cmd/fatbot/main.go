@@ -1,13 +1,14 @@
 package main
 
 import (
-	"os"
-	"strconv"
 
-	"math/rand"
-	"time"
+"math/rand"
+"os"
+"time"
+
 
 	"github.com/Sirupsen/logrus"
+	"github.com/wallnutkraken/fatbot/fatai"
 	"github.com/wallnutkraken/fatbot/fatbrain"
 	"github.com/wallnutkraken/fatbot/fatdata"
 	"github.com/wallnutkraken/fatbot/fatplugin"
@@ -50,8 +51,23 @@ func main() {
 		urlcleaner.New(),
 	}
 
-	brain, err := fatbrain.New(getChainLength(), 8, os.Getenv("FATBOT_TELEGRAM_TOKEN"), 2, db,
-		chats, cleaners)
+	lstmSettings := fatai.LSTMSettings{
+		SavePath: os.Getenv("FATBOT_SAVE_PATH"),
+		WordCount: os.Getenv("FATBOT_WORD_COUNT"),
+	}
+	lstm := fatai.New(lstmSettings)
+	lstm.Train(messages)
+
+	brainSettings := fatbrain.FatBotSettings{
+		TelegramKey: os.Getenv("FATBOT_TELEGRAM_TOKEN"),
+		RefreshPeriod: time.Second*2,
+		Database: db,
+		Chats: chats,
+		Cleaners: cleaners,
+		FatLSTM:lstm,
+	}
+
+	brain, err := fatbrain.New(brainSettings)
 	if err != nil {
 		logrus.WithError(err).Fatal("Failed creating bot")
 	}
@@ -62,25 +78,11 @@ func main() {
 	brain.AddReactors(reactors)
 
 	for _, msg := range messages {
-		brain.FeedString(msg)
+		brain.Feed(msg)
 	}
 	brain.Start()
 
 	//TODO
 	time.Sleep(time.Hour * 90000)
 	brain.Stop()
-}
-
-func getChainLength() int {
-	chLen := os.Getenv("FATBOT_CHAIN_LENGTH")
-	if chLen == "" {
-		return defaultChainLength
-	}
-	chLenInt, err := strconv.Atoi(chLen)
-	if err != nil {
-		logrus.Errorf("Invalid chain length value [%s]", chLen)
-		return defaultChainLength
-	}
-
-	return chLenInt
 }

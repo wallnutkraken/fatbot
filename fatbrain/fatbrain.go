@@ -5,10 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"io"
-
-	"bytes"
-
 	"time"
 
 	"strconv"
@@ -16,7 +12,7 @@ import (
 	"sync"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/exercism/arkov/chain"
+	"github.com/wallnutkraken/fatbot/fatai"
 	"github.com/wallnutkraken/fatbot/fatdata"
 	"github.com/wallnutkraken/fatbot/fatplugin"
 	"github.com/wallnutkraken/telegogo"
@@ -33,10 +29,9 @@ var ErrInvalidLength = errors.New(fmt.Sprintf("The chain length MUST be between 
 	MinChainLength, MaxChainLength))
 
 type FatBotBrain struct {
-	chain             *chain.Chain
-	maxWordLength     int
+	chain             *fatai.LSTMWrapper
 	telegram          TeleGogo.Client
-	refreshSeconds    int
+	refreshPeriod     time.Duration
 	lastID            int
 	inChats           []int
 	database          *fatdata.Data
@@ -49,30 +44,31 @@ type FatBotBrain struct {
 	chatMutex         *sync.Mutex
 }
 
+type FatBotSettings struct {
+	TelegramKey string
+	RefreshPeriod time.Duration
+	Database *fatdata.Data
+	Chats []int
+	Cleaners []fatplugin.Cleaner
+	FatLSTM *fatai.LSTMWrapper
+}
+
 // New creates a new instance of FatBotBrain
-func New(chainLength int, maxWords int, botKey string, refreshSecs int, db *fatdata.Data,
-	chats []int, cleaners []fatplugin.Cleaner) (*FatBotBrain, error) {
-
-	if chainLength < MinChainLength || chainLength > MaxChainLength {
-		return nil, ErrInvalidLength
-	}
-
-	c := chain.NewChain(chainLength)
-	bot, err := TeleGogo.NewBot(botKey)
+func New(settings FatBotSettings) (*FatBotBrain, error) {
+	bot, err := TeleGogo.NewBot(settings.TelegramKey)
 	if err != nil {
 		return nil, err
 	}
 	brain := &FatBotBrain{
-		chain:             c,
-		maxWordLength:     maxWords,
+		chain:             settings.FatLSTM,
 		telegram:          bot,
-		refreshSeconds:    refreshSecs,
-		inChats:           chats,
-		database:          db,
+		refreshPeriod:     settings.RefreshPeriod,
+		inChats:           settings.Chats,
+		database:          settings.Database,
 		messageCount:      0,
 		continueMessaging: true,
 		reactors:          make([]fatplugin.Reactor, 0),
-		cleaners:          cleaners,
+		cleaners:          settings.Cleaners,
 		chatMutex:         &sync.Mutex{},
 	}
 
@@ -83,14 +79,8 @@ func (f *FatBotBrain) AddReactors(reactors []fatplugin.Reactor) {
 	f.reactors = append(f.reactors, reactors...)
 }
 
-func (f *FatBotBrain) Feed(r io.Reader) {
-	f.messageCount++
-	f.chain.Build(r)
-}
-
-func (f *FatBotBrain) FeedString(text string) {
-	buf := bytes.NewBufferString(text)
-	f.Feed(buf)
+func (f *FatBotBrain) Feed(text string) {
+	f.chain.Train([]string {text})
 }
 
 func (f *FatBotBrain) generate() string {
@@ -178,7 +168,7 @@ func (f *FatBotBrain) startListening() chan bool {
 			select {
 			case <-ch:
 				return
-			case <-time.After(time.Second * time.Duration(f.refreshSeconds)):
+			case <-time.After(time.Second * f.refreshPeriod):
 				updates, err := f.telegram.GetUpdates(TeleGogo.GetUpdatesOptions{Offset: f.lastID + 1})
 				if err != nil {
 					logrus.WithError(err).Error("Failed getting updates")
@@ -204,7 +194,7 @@ func (f *FatBotBrain) startListening() chan bool {
 
 						if !reacted {
 							msgsToSave = append(msgsToSave, update)
-							f.FeedString(cleanText)
+							f.Feed(cleanText)
 						}
 					} else {
 						continue
