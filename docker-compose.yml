@@ -2,9 +2,6 @@ version: '3'
 volumes:
   database:
     driver: local
-networks:
-  internal:
-    driver: ${DOCKER_NETWORK_DRIVER}
 services:
   fatbot:
     build: .
