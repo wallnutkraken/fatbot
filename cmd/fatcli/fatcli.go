@@ -1,4 +1,4 @@
-package fatcli
+package main
 
 import (
 	"os"
