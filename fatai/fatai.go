@@ -8,6 +8,8 @@ import (
 
 	"sync"
 
+	"errors"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/unixpickle/serializer"
 	"github.com/wallnutkraken/char-rnn"
@@ -55,9 +57,10 @@ func New(s LSTMSettings) (*LSTMWrapper, error) {
 		if err != nil {
 			return nil, err
 		}
-		wrapper.network, err = deserialized.(charrnn.Model)
-		if err != nil {
-			return nil, err
+		var ok bool
+		wrapper.network, ok = deserialized.(charrnn.Model)
+		if !ok {
+			return nil, errors.New("Brain model is not a charrnn model")
 		}
 	}
 
