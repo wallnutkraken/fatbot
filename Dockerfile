@@ -13,5 +13,5 @@ ENV GOBIN $GOPATH/bin
 RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 RUN dep ensure --vendor-only
 
-RUN go install github.com/wallnutkraken/fatbot/cmd/fatbot
+RUN GOMAXPROCS=$(grep -c ^processor /proc/cpuinfo) go install github.com/wallnutkraken/fatbot/cmd/fatbot
 CMD ["fatbot"]

@@ -9,7 +9,6 @@ services:
     env_file:
       - fatbot.env
     environment:
-      - GOMAXPROCS=$(grep -c ^processor /proc/cpuinfo)
       - FATBOT_TELEGRAM_TOKEN
       - FATBOT_SAVE_PATH
       - FATBOT_WORD_COUNT
