@@ -1,44 +1,44 @@
 package main
 
 import (
-	"os"
-	"strconv"
+	"flag"
 
 	"fmt"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/c-bata/go-prompt"
 	"github.com/wallnutkraken/fatbot/cmd/fatcli/fatcaller"
-	"github.com/wallnutkraken/fatbot/fatctrl/ctrltypes"
 )
 
+var commands []Command
+
 func main() {
-	cl := fatcaller.New("http://www.fatbot.cli:1587")
-	args := os.Args
-	switch args[1] {
-	case "status":
-		switch args[2] {
-		case "set":
-			if args[3] == "train" {
-				seconds, err := strconv.Atoi(args[4])
-				if err != nil {
-					logrus.WithError(err).Fatal("Failed reading train seconds")
-				}
-				if err := cl.StartTraining(ctrltypes.StartTrainingRequest{
-					EndAfterSeconds: seconds,
-				}); err != nil {
-					logrus.WithError(err).Fatal("Request failed")
-				}
-			} else if args[3] == "stop" {
-				if err := cl.StopTraining(); err != nil {
-					logrus.WithError(err).Fatal("Request failed")
-				}
+	hostname := flag.String("h", "http://localhost:1587", "Hostname of the fatbot service")
+	flag.Parse()
+	cl := fatcaller.New(*hostname)
+	commands = []Command{
+		NewStatus(cl),
+	}
+	p := prompt.New(executor, completer)
+	p.Run()
+}
+
+func completer(d prompt.Document) []prompt.Suggest {
+	s := []prompt.Suggest{
+		{Text: "status", Description: "Gets or sets the status of the neural network"},
+	}
+	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
+}
+
+func executor(cmd string) {
+	for _, command := range commands {
+		if command.Is(cmd) {
+			if err := command.Exec(cmd); err != nil {
+				fmt.Println("Error running command:", err.Error())
+			} else {
+				return
 			}
-		case "get":
-			status, err := cl.GetStatus()
-			if err != nil {
-				logrus.WithError(err).Fatal("Request failed")
-			}
-			fmt.Printf("Neural network status: %s\n", status.Network)
 		}
 	}
+
+	fmt.Println("Command not found")
 }
