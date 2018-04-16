@@ -9,9 +9,32 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/gin-contrib/sse"
+  packages = ["."]
+  revision = "22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/gin-gonic/gin"
+  packages = [
+    ".",
+    "binding",
+    "json",
+    "render"
+  ]
+  revision = "6d913fc343cfac80d656db5be67a0ffb1323ba0d"
+
+[[projects]]
+  branch = "master"
   name = "github.com/go-sql-driver/mysql"
   packages = ["."]
   revision = "3287d94d4c6a48a63e16fffaabf27ab20203af2a"
+
+[[projects]]
+  name = "github.com/golang/protobuf"
+  packages = ["proto"]
+  revision = "925541529c1fa6821df4e44ce2723319eb2be768"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -33,6 +56,36 @@
     "asm/f64"
   ]
   revision = "fda53f8d25717c07e2dac25758075a182bd74235"
+
+[[projects]]
+  name = "github.com/json-iterator/go"
+  packages = ["."]
+  revision = "ca39e5af3ece67bbcda3d0f4f56a8e24d9f2dad4"
+  version = "1.1.3"
+
+[[projects]]
+  name = "github.com/mattn/go-isatty"
+  packages = ["."]
+  revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
+  version = "v0.0.3"
+
+[[projects]]
+  name = "github.com/modern-go/concurrent"
+  packages = ["."]
+  revision = "bacd9c7ef1dd9b15be4a9909b8ac7a4e313eec94"
+  version = "1.0.3"
+
+[[projects]]
+  name = "github.com/modern-go/reflect2"
+  packages = ["."]
+  revision = "1df9eeb2bb81f327b96228865c5687bc2194af3f"
+  version = "1.0.0"
+
+[[projects]]
+  name = "github.com/ugorji/go"
+  packages = ["codec"]
+  revision = "b4c50a2b199d93b13dc15e78929cfb23bfdf21ab"
+  version = "v1.1.1"
 
 [[projects]]
   branch = "master"
@@ -80,24 +133,12 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/unixpickle/hmm"
-  packages = ["."]
-  revision = "d367538e5b1d76b84fc84166ca5de4cc4ab458cf"
-
-[[projects]]
-  branch = "master"
   name = "github.com/unixpickle/lazyseq"
   packages = [
     ".",
     "lazyrnn"
   ]
   revision = "dacb3642d9be3562755660df85b2789b0fb11e4e"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/unixpickle/rip"
-  packages = ["."]
-  revision = "d6200de264b4506ce04a82f65374f4a697740448"
 
 [[projects]]
   branch = "master"
@@ -109,7 +150,7 @@
   branch = "master"
   name = "github.com/wallnutkraken/char-rnn"
   packages = ["."]
-  revision = "27b10a53c067ecee42ab23f3ad4b2ed8467a6d72"
+  revision = "c2cce0c0a1a728689513c74cad89957db712cadd"
 
 [[projects]]
   branch = "master"
@@ -121,7 +162,7 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "b2aa35443fbc700ab74c586ae79b81c171851023"
+  revision = "d6449816ce06963d9d136eee5a56fca5b0616e7e"
 
 [[projects]]
   branch = "master"
@@ -130,13 +171,25 @@
     "unix",
     "windows"
   ]
-  revision = "1d206c9fa8975fb4cf00df1dc8bf3283dc24ba0e"
+  revision = "2281fa97ef7b0c26324634d5a22f04babdac8713"
 
 [[projects]]
   name = "google.golang.org/appengine"
   packages = ["cloudsql"]
   revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
   version = "v1.0.0"
+
+[[projects]]
+  name = "gopkg.in/go-playground/validator.v8"
+  packages = ["."]
+  revision = "5f1438d3fca68893a817e4a66806cea46a9e4ebf"
+  version = "v8.18.2"
+
+[[projects]]
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  version = "v2.2.1"
 
 [[projects]]
   name = "mvdan.cc/xurls"
@@ -147,6 +200,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "aa16b9c1e0e9b120e488df06d256de9f698282a4447c807ee2f6f9d91e2d546d"
+  inputs-digest = "78601341de49f84edea4fd7a813fc86d1084065c514be2a6fe86634aac99961f"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -1,15 +1,14 @@
 package main
 
 import (
-
-"math/rand"
-"os"
-"time"
-
+	"math/rand"
+	"os"
+	"time"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/wallnutkraken/fatbot/fatai"
 	"github.com/wallnutkraken/fatbot/fatbrain"
+	"github.com/wallnutkraken/fatbot/fatctrl"
 	"github.com/wallnutkraken/fatbot/fatdata"
 	"github.com/wallnutkraken/fatbot/fatplugin"
 	"github.com/wallnutkraken/fatbot/fatplugin/commands/saycmd"
@@ -18,7 +17,7 @@ import (
 )
 
 const (
-	connStr = "fatbot:fatbot@tcp(tgbot_mysql_1:3306)/fatbot"
+	connStr            = "fatbot:fatbot@tcp(tgbot_mysql_1:3306)/fatbot"
 	defaultChainLength = 1
 )
 
@@ -38,10 +37,6 @@ func main() {
 	}
 	defer db.Close()
 
-	messages, err := db.GetMessages()
-	if err != nil {
-		logrus.WithError(err).Fatal("Failed loading messages")
-	}
 	chats, err := db.GetChats()
 	if err != nil {
 		logrus.WithError(err).Fatal("Failed loading chats")
@@ -52,19 +47,29 @@ func main() {
 	}
 
 	lstmSettings := fatai.LSTMSettings{
-		SavePath: os.Getenv("FATBOT_SAVE_PATH"),
+		SavePath:  os.Getenv("FATBOT_SAVE_PATH"),
 		WordCount: os.Getenv("FATBOT_WORD_COUNT"),
 	}
-	lstm := fatai.New(lstmSettings)
-	lstm.Train(messages)
+	lstm, err := fatai.New(lstmSettings)
+	if err != nil {
+		logrus.WithError(err).Error("Failed loading memory model, training new one from database...")
+
+		messages, err := db.GetMessages()
+		if err != nil {
+			logrus.WithError(err).Fatal("Failed loading messages")
+		}
+
+		lstm.TrainFor(messages, time.Hour*18)
+		lstm.Save()
+	}
 
 	brainSettings := fatbrain.FatBotSettings{
-		TelegramKey: os.Getenv("FATBOT_TELEGRAM_TOKEN"),
-		RefreshPeriod: time.Second*2,
-		Database: db,
-		Chats: chats,
-		Cleaners: cleaners,
-		FatLSTM:lstm,
+		TelegramKey:   os.Getenv("FATBOT_TELEGRAM_TOKEN"),
+		RefreshPeriod: time.Second * 2,
+		Database:      db,
+		Chats:         chats,
+		Cleaners:      cleaners,
+		FatLSTM:       lstm,
 	}
 
 	brain, err := fatbrain.New(brainSettings)
@@ -76,13 +81,12 @@ func main() {
 		subcmd.New(brain),
 	}
 	brain.AddReactors(reactors)
-
-	for _, msg := range messages {
-		brain.Feed(msg)
-	}
 	brain.Start()
 
-	//TODO
-	time.Sleep(time.Hour * 90000)
-	brain.Stop()
+	ctrl := fatctrl.New(":1587", brain)
+	if err := ctrl.Start(); err != nil {
+		logrus.WithError(err).Error("Control API failed. Stopping brain.")
+		brain.StopTraining()
+		brain.Stop()
+	}
 }

@@ -2,7 +2,6 @@ package fatbrain
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 
 	"time"
@@ -22,11 +21,8 @@ const (
 	MinChainLength              = 1
 	MaxChainLength              = 3
 	MinMessageCountForMessaging = 100
-	MaxWordCount = 12
+	MaxWordCount                = 12
 )
-
-var ErrInvalidLength = errors.New(fmt.Sprintf("The chain length MUST be between %d and %d.",
-	MinChainLength, MaxChainLength))
 
 type FatBotBrain struct {
 	chain             *fatai.LSTMWrapper
@@ -41,16 +37,17 @@ type FatBotBrain struct {
 	continueMessaging bool
 	reactors          []fatplugin.Reactor
 	cleaners          []fatplugin.Cleaner
+	chainStatus       *ChainStatus
 	chatMutex         *sync.Mutex
 }
 
 type FatBotSettings struct {
-	TelegramKey string
+	TelegramKey   string
 	RefreshPeriod time.Duration
-	Database *fatdata.Data
-	Chats []int
-	Cleaners []fatplugin.Cleaner
-	FatLSTM *fatai.LSTMWrapper
+	Database      *fatdata.Data
+	Chats         []int
+	Cleaners      []fatplugin.Cleaner
+	FatLSTM       *fatai.LSTMWrapper
 }
 
 // New creates a new instance of FatBotBrain
@@ -70,17 +67,32 @@ func New(settings FatBotSettings) (*FatBotBrain, error) {
 		reactors:          make([]fatplugin.Reactor, 0),
 		cleaners:          settings.Cleaners,
 		chatMutex:         &sync.Mutex{},
+		chainStatus:       newChainStatus(),
 	}
 
 	return brain, nil
+}
+
+func (f *FatBotBrain) IsTraining() bool {
+	return f.chainStatus.IsTraining()
 }
 
 func (f *FatBotBrain) AddReactors(reactors []fatplugin.Reactor) {
 	f.reactors = append(f.reactors, reactors...)
 }
 
-func (f *FatBotBrain) Feed(text string) {
-	f.chain.Train([]string {text})
+func (f *FatBotBrain) Feed() error {
+	if !f.chainStatus.IsTraining() {
+		f.chainStatus.SetTraining(true)
+		msgs, err := f.database.GetMessages()
+		if err != nil {
+			return err
+		}
+		f.chain.StartTraining(msgs, func() {
+			f.chainStatus.SetTraining(false)
+		})
+	}
+	return nil
 }
 
 func (f *FatBotBrain) generate() string {
@@ -110,6 +122,32 @@ func (f *FatBotBrain) AddChat(chatID int) error {
 	f.chatMutex.Unlock()
 
 	return err
+}
+
+func (f *FatBotBrain) StopTraining() {
+	if !f.chainStatus.IsTraining() && !f.chain.IsForTraining() {
+		return
+	}
+	if f.chain.IsForTraining() {
+		f.chain.StopTrainFor()
+	}
+	if f.chainStatus.IsTraining() {
+		f.chain.Stop()
+	}
+	f.chainStatus.SetTraining(false)
+}
+
+func (f *FatBotBrain) TrainFor(duration time.Duration) error {
+	if f.chainStatus.IsTraining() {
+		f.StopTraining()
+	}
+	f.chainStatus.SetTraining(true)
+	msgs, err := f.database.GetMessages()
+	if err != nil {
+		return err
+	}
+	f.chain.TrainFor(msgs, duration)
+	return nil
 }
 
 func (f *FatBotBrain) removeChat(chatID int) error {
@@ -194,7 +232,7 @@ func (f *FatBotBrain) startListening() chan bool {
 
 						if !reacted {
 							msgsToSave = append(msgsToSave, update)
-							f.Feed(cleanText)
+							//f.Feed(cleanText)
 						}
 					} else {
 						continue
