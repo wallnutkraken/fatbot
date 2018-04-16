@@ -16,6 +16,8 @@ services:
       - mysql
     volumes:
       - ./dumps:/go/src/github.com/wallnutkraken/fatbot/dumps
+    expose:
+      - "1587:1587"
   mysql:
     image: mysql:latest
     restart: always
