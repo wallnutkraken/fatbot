@@ -2,6 +2,9 @@ version: '3'
 volumes:
   database:
     driver: local
+networks:
+  internal:
+    driver: ${DOCKER_NETWORK_DRIVER}
 services:
   fatbot:
     build: .
@@ -23,6 +26,7 @@ services:
     restart: always
     expose:
       - 3306
+      - 8083
     env_file:
       - fatbot.env
     volumes:
