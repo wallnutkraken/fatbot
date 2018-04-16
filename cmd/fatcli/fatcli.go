@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	cl := fatcaller.New("localhost:1587")
+	cl := fatcaller.New("http://localhost:1587")
 	args := os.Args
 	switch args[1] {
 	case "status":
