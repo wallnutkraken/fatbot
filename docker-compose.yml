@@ -10,8 +10,6 @@ services:
       - fatbot.env
     environment:
       - FATBOT_TELEGRAM_TOKEN
-      - FATBOT_SAVE_PATH
-      - FATBOT_WORD_COUNT
     depends_on:
       - mysql
     volumes:

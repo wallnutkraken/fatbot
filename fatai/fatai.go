@@ -10,6 +10,8 @@ import (
 
 	"errors"
 
+	"path/filepath"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/unixpickle/serializer"
 	"github.com/wallnutkraken/char-rnn"
@@ -134,6 +136,11 @@ func (w *LSTMWrapper) loadSamples(data []string) charrnn.SampleList {
 }
 
 func (w *LSTMWrapper) save() error {
+	path, err := filepath.Abs(w.settings.SavePath)
+	if err != nil {
+		return err
+	}
+	logrus.Infof("Saving LSTM to %s", path)
 	encoded, err := serializer.SerializeWithType(w.network)
 	if err != nil {
 		return err
