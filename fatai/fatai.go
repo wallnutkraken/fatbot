@@ -138,7 +138,16 @@ func (w *LSTMWrapper) save() error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(w.settings.SavePath, encoded, os.ModePerm)
+	f, err := os.Create(w.settings.SavePath)
+	if err != nil {
+		return err
+	}
+	_, err = f.Write(encoded)
+	if err != nil {
+		return err
+	}
+
+	return f.Close()
 }
 
 func (w *LSTMWrapper) Generate() string {
