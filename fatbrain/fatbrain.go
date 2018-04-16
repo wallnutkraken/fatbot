@@ -48,6 +48,7 @@ type FatBotSettings struct {
 	Chats         []int
 	Cleaners      []fatplugin.Cleaner
 	FatLSTM       *fatai.LSTMWrapper
+	StartTraining bool
 }
 
 // New creates a new instance of FatBotBrain
@@ -68,6 +69,14 @@ func New(settings FatBotSettings) (*FatBotBrain, error) {
 		cleaners:          settings.Cleaners,
 		chatMutex:         &sync.Mutex{},
 		chainStatus:       newChainStatus(),
+	}
+
+	if settings.StartTraining {
+		logrus.WithError(err).Error("Failed loading memory model, starting training new one from database...")
+
+		if err := brain.TrainFor(time.Hour * 18); err != nil {
+			logrus.WithError(err).Fatal("Failed training")
+		}
 	}
 
 	return brain, nil
@@ -96,6 +105,9 @@ func (f *FatBotBrain) Feed() error {
 }
 
 func (f *FatBotBrain) generate() string {
+	if f.IsTraining() {
+		return ""
+	}
 	text := f.chain.Generate()
 	logrus.Infof("Generated message [%s] with [%d] newlines", text, strings.Count(text, "\n"))
 	firstLine := strings.Split(text, "\n")[0]

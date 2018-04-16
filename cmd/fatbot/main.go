@@ -51,16 +51,9 @@ func main() {
 		WordCount: os.Getenv("FATBOT_WORD_COUNT"),
 	}
 	lstm, err := fatai.New(lstmSettings)
+	var startTraining bool
 	if err != nil {
-		logrus.WithError(err).Error("Failed loading memory model, training new one from database...")
-
-		messages, err := db.GetMessages()
-		if err != nil {
-			logrus.WithError(err).Fatal("Failed loading messages")
-		}
-
-		lstm.TrainFor(messages, time.Hour*18)
-		lstm.Save()
+		startTraining = true
 	}
 
 	brainSettings := fatbrain.FatBotSettings{
@@ -70,6 +63,7 @@ func main() {
 		Chats:         chats,
 		Cleaners:      cleaners,
 		FatLSTM:       lstm,
+		StartTraining: startTraining,
 	}
 
 	brain, err := fatbrain.New(brainSettings)

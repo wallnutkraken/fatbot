@@ -72,6 +72,9 @@ func (w *LSTMWrapper) Train(data []string) {
 	samples := w.loadSamples(data)
 	w.network.Train(samples, w.closeChan)
 	logrus.Infof("Finished training in %s", time.Since(start).String())
+	if err := w.save(); err != nil {
+		logrus.WithError(err).Error("Failed saving trained brain")
+	}
 }
 
 func (w *LSTMWrapper) Stop() {
@@ -97,6 +100,9 @@ func (w *LSTMWrapper) TrainFor(data []string, duration time.Duration) {
 		w.Stop()
 	case <-w.stopTrainFor:
 		w.Stop()
+	}
+	if err := w.save(); err != nil {
+		logrus.WithError(err).Error("Failed saving trained brain")
 	}
 }
 
@@ -127,7 +133,7 @@ func (w *LSTMWrapper) loadSamples(data []string) charrnn.SampleList {
 	return result
 }
 
-func (w *LSTMWrapper) Save() error {
+func (w *LSTMWrapper) save() error {
 	encoded, err := serializer.SerializeWithType(w.network)
 	if err != nil {
 		return err

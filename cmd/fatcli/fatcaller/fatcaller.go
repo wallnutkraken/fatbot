@@ -30,6 +30,7 @@ func New(addr string) *Client {
 	if !strings.HasSuffix(addr, "/") {
 		addr += "/"
 	}
+	addr += "v1/"
 	return &Client{
 		addr:   addr,
 		client: &http.Client{},
