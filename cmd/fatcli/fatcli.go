@@ -36,9 +36,8 @@ func executor(cmd string) {
 		if command.Is(cmd) {
 			if err := command.Exec(cmd); err != nil {
 				fmt.Println("Error running command:", err.Error())
-			} else {
-				return
 			}
+			return
 		}
 	}
 
